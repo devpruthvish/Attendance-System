@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard - EduTrack</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: teacher-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title">
+                <h2>Teacher Dashboard</h2>
+                <p th:text="${teacher != null ? 'Welcome, ' + teacher.name : 'Welcome'}">Welcome</p>
+            </div>
+            <div class="topbar-actions">
+                <a href="/teacher/attendance/mark" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Mark Attendance
+                </a>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <!-- Stats -->
+            <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <p>My Subjects</p>
+                        <h3 th:text="${totalSubjects}">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Subjects -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>My Assigned Subjects</h3>
+                </div>
+
+                <div th:if="${subjects.empty}" class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/></svg>
+                    <h3>No subjects assigned yet</h3>
+                    <p>Ask your admin to assign subjects to you.</p>
+                </div>
+
+                <div th:if="${!subjects.empty}" class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Subject Name</th>
+                            <th>Code</th>
+                            <th>Class</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="subject, stat : ${subjects}">
+                            <td th:text="${stat.count}">1</td>
+                            <td style="font-weight:500;" th:text="${subject.name}">Subject</td>
+                            <td><code th:text="${subject.code ?: '-'}">CODE</code></td>
+                            <td>
+                                <span class="badge badge-student" th:text="${subject.className}">Class</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/teacher/attendance/mark}" class="btn btn-primary btn-sm">Mark Attendance</a>
+                                <a th:href="@{/teacher/attendance/report}" class="btn btn-secondary btn-sm">View Report</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

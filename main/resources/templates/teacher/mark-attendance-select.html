@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mark Attendance - EduTrack</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: teacher-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title">
+                <h2>Mark Attendance</h2>
+                <p>Step 1: Select subject, class, date and hour</p>
+            </div>
+        </div>
+
+        <div class="page-content">
+
+            <div class="card" style="max-width:620px;">
+                <div class="card-header">
+                    <h3>Select Session Details</h3>
+                </div>
+                <div class="card-body">
+
+                    <div th:if="${subjects.empty}" class="alert alert-warning">
+                        No subjects assigned to you yet. Ask admin to assign subjects.
+                    </div>
+
+                    <form th:if="${!subjects.empty}" th:action="@{/teacher/attendance/session}" method="get">
+
+                        <div class="form-group">
+                            <label class="form-label">Subject *</label>
+                            <select name="subjectId" class="form-control" required>
+                                <option value="">-- Select Subject --</option>
+                                <option th:each="subject : ${subjects}"
+                                        th:value="${subject.id}"
+                                        th:text="${subject.name + ' (' + subject.className + ')'}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Class *</label>
+                            <select name="className" class="form-control" required>
+                                <option value="">-- Select Class --</option>
+                                <option th:each="cn : ${classNames}"
+                                        th:value="${cn}"
+                                        th:text="${cn}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Date *</label>
+                                <input type="date" name="date" class="form-control"
+                                       th:value="${today}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Hour *</label>
+                                <select name="hour" class="form-control" required>
+                                    <option value="">-- Hour --</option>
+                                    <option th:each="h : ${hours}"
+                                            th:value="${h}"
+                                            th:text="'Hour ' + ${h}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                                Proceed to Mark Attendance
+                            </button>
+                            <a href="/teacher/dashboard" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

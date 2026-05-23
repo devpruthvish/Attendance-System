@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Records - EduTrack Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title">
+                <h2>Attendance Records</h2>
+                <p>View and manage all attendance data</p>
+            </div>
+            <div class="topbar-actions">
+                <a href="/admin/attendance/report" class="btn btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    View Report
+                </a>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>All Attendance Records (<span th:text="${attendanceList.size()}">0</span>)</h3>
+                </div>
+
+                <div th:if="${attendanceList.empty}" class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <h3>No attendance records yet</h3>
+                    <p>Teachers need to mark attendance first.</p>
+                </div>
+
+                <div th:if="${!attendanceList.empty}" class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Class</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Hour</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="att, stat : ${attendanceList}">
+                            <td th:text="${stat.count}">1</td>
+                            <td style="font-weight:500;" th:text="${att.student.name}">Student</td>
+                            <td>
+                                <span class="badge badge-student" th:text="${att.student.className}">Class</span>
+                            </td>
+                            <td th:text="${att.subject.name}">Subject</td>
+                            <td th:text="${att.date}">Date</td>
+                            <td style="text-align:center;">
+                                <span style="background:var(--primary-light); color:var(--primary);
+                                      padding:2px 10px; border-radius:100px; font-size:12px; font-weight:600;"
+                                      th:text="'H' + att.hour">H1</span>
+                            </td>
+                            <td>
+                                <span th:class="${att.status == 'present'} ? 'badge badge-present' : 'badge badge-absent'"
+                                      th:text="${#strings.toUpperCase(att.status)}">STATUS</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/admin/attendance/delete/{id}(id=${att.id})}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Delete this record?')">Delete</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

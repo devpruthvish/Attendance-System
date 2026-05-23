@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mark Attendance Session - EduTrack</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .attendance-table tbody tr:hover { background: var(--bg); }
+        .student-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+        .student-row:last-child { border-bottom: none; }
+        .student-name { font-weight: 500; font-size: 15px; }
+        .student-roll { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .bulk-actions { display: flex; gap: 10px; padding: 14px 16px; background: var(--bg); border-bottom: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: teacher-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title">
+                <h2>Mark Attendance</h2>
+                <p>Step 2: Mark present / absent for each student</p>
+            </div>
+        </div>
+
+        <div class="page-content">
+
+            <!-- Session Info Banner -->
+            <div style="background:var(--primary-light); border:1px solid #c3d3f5; border-radius:var(--radius-lg);
+                        padding:16px 20px; margin-bottom:20px; display:flex; gap:32px; flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:11px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:.05em;">Subject</div>
+                    <div style="font-weight:600; font-size:15px;" th:text="${subject.name}">Subject</div>
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:.05em;">Class</div>
+                    <div style="font-weight:600; font-size:15px;" th:text="${className}">Class</div>
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:.05em;">Date</div>
+                    <div style="font-weight:600; font-size:15px;" th:text="${date}">Date</div>
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:.05em;">Hour</div>
+                    <div style="font-weight:600; font-size:15px;" th:text="'Hour ' + ${hour}">Hour</div>
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:.05em;">Students</div>
+                    <div style="font-weight:600; font-size:15px;" th:text="${students.size()}">0</div>
+                </div>
+            </div>
+
+            <div th:if="${students.empty}" class="alert alert-warning">
+                No students found in class <strong th:text="${className}">class</strong>. Make sure students are enrolled in this class.
+            </div>
+
+            <div th:if="${!students.empty}" class="card">
+                <div class="card-header">
+                    <h3>Student Attendance List</h3>
+                    <div style="font-size:13px; color:var(--text-muted);">Mark each student as Present or Absent</div>
+                </div>
+
+                <!-- Bulk Mark Buttons -->
+                <div class="bulk-actions">
+                    <button type="button" class="btn btn-success btn-sm" onclick="markAll('present')">
+                        ✓ Mark All Present
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="markAll('absent')">
+                        ✗ Mark All Absent
+                    </button>
+                </div>
+
+                <!-- Form: POST to /teacher/attendance/save -->
+                <form th:action="@{/teacher/attendance/save}" method="post" id="attendanceForm">
+                    <!-- Hidden fields for session info -->
+                    <input type="hidden" name="subjectId" th:value="${subject.id}">
+                    <input type="hidden" name="date" th:value="${date}">
+                    <input type="hidden" name="hour" th:value="${hour}">
+
+                    <!-- One row per student -->
+                    <div th:each="student : ${students}" class="student-row">
+                        <div>
+                            <div class="student-name" th:text="${student.name}">Student Name</div>
+                            <div class="student-roll"
+                                 th:text="${(student.rollNumber != null ? student.rollNumber : '') + ' · ' + student.className}">
+                                Roll · Class
+                            </div>
+                        </div>
+
+                        <!-- Radio buttons: present / absent -->
+                        <!-- Field name: status_<studentId> -->
+                        <div class="attendance-radio-group">
+                            <div class="radio-btn">
+                                <input type="radio"
+                                       th:id="'present_' + ${student.id}"
+                                       th:name="'status_' + ${student.id}"
+                                       value="present"
+                                       th:checked="${existingStatus[student.id] == 'present' || existingStatus[student.id] == null}">
+                                <label th:for="'present_' + ${student.id}">
+                                    ✓ Present
+                                </label>
+                            </div>
+                            <div class="radio-btn">
+                                <input type="radio"
+                                       th:id="'absent_' + ${student.id}"
+                                       th:name="'status_' + ${student.id}"
+                                       value="absent"
+                                       th:checked="${existingStatus[student.id] == 'absent'}">
+                                <label th:for="'absent_' + ${student.id}">
+                                    ✗ Absent
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div style="padding:20px 16px; border-top:1px solid var(--border); display:flex; gap:12px;">
+                        <button type="submit" class="btn btn-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Save Attendance
+                        </button>
+                        <a href="/teacher/attendance/mark" class="btn btn-secondary">← Back</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mark all students present or absent with one click
+    function markAll(status) {
+        const radios = document.querySelectorAll('input[type="radio"][value="' + status + '"]');
+        radios.forEach(r => r.checked = true);
+    }
+</script>
+</body>
+</html>
