@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Report - EduTrack Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title">
+                <h2>Attendance Report</h2>
+                <p>Filter by student and subject to view detailed attendance</p>
+            </div>
+        </div>
+
+        <div class="page-content">
+
+            <!-- Filter Form -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header"><h3>Filter Report</h3></div>
+                <div class="card-body">
+                    <form th:action="@{/admin/attendance/report}" method="get"
+                          style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
+                        <div class="form-group" style="margin:0; flex:1; min-width:180px;">
+                            <label class="form-label">Student</label>
+                            <select name="studentId" class="form-control">
+                                <option value="">-- Select Student --</option>
+                                <option th:each="s : ${students}"
+                                        th:value="${s.id}"
+                                        th:text="${s.name + ' (' + s.className + ')'}"
+                                        th:selected="${selectedStudent != null && selectedStudent.id == s.id}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0; flex:1; min-width:180px;">
+                            <label class="form-label">Subject</label>
+                            <select name="subjectId" class="form-control">
+                                <option value="">-- Select Subject --</option>
+                                <option th:each="sub : ${subjects}"
+                                        th:value="${sub.id}"
+                                        th:text="${sub.name + ' (' + sub.className + ')'}"
+                                        th:selected="${selectedSubject != null && selectedSubject.id == sub.id}">
+                                </option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Report Results -->
+            <div th:if="${records != null}" class="card">
+                <div class="card-header">
+                    <h3>
+                        Report: <span th:text="${selectedStudent.name}">Student</span>
+                        — <span th:text="${selectedSubject.name}">Subject</span>
+                    </h3>
+                    <div>
+                        <span th:class="${percentage >= 75} ? 'badge badge-good' : (${percentage >= 50} ? 'badge badge-warning' : 'badge badge-danger')"
+                              th:text="${percentage + '% attendance'}">0%</span>
+                    </div>
+                </div>
+
+                <!-- Summary stats -->
+                <div style="display:flex; gap:24px; padding:20px 24px; border-bottom:1px solid var(--border); background:var(--bg);">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:2px;">Total Classes</div>
+                        <div style="font-size:22px; font-weight:700;" th:text="${records.size()}">0</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:2px;">Present</div>
+                        <div style="font-size:22px; font-weight:700; color:var(--success);"
+                             th:text="${#lists.size(records.?[status == 'present'])}">0</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:2px;">Absent</div>
+                        <div style="font-size:22px; font-weight:700; color:var(--danger);"
+                             th:text="${#lists.size(records.?[status == 'absent'])}">0</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:2px;">Percentage</div>
+                        <div style="font-size:22px; font-weight:700;" th:text="${percentage + '%'}">0%</div>
+                    </div>
+                </div>
+
+                <!-- Progress bar -->
+                <div style="padding:16px 24px; border-bottom:1px solid var(--border);">
+                    <div class="progress-bar-bg">
+                        <div th:class="${percentage >= 75} ? 'progress-bar-fill good' : (${percentage >= 50} ? 'progress-bar-fill warning' : 'progress-bar-fill danger')"
+                             th:style="'width:' + ${percentage} + '%'"></div>
+                    </div>
+                </div>
+
+                <div th:if="${records.empty}" class="empty-state">
+                    <h3>No attendance records found</h3>
+                </div>
+
+                <div th:if="${!records.empty}" class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Hour</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="att, stat : ${records}">
+                            <td th:text="${stat.count}">1</td>
+                            <td th:text="${att.date}">Date</td>
+                            <td>
+                                <span style="background:var(--primary-light); color:var(--primary);
+                                      padding:2px 10px; border-radius:100px; font-size:12px; font-weight:600;"
+                                      th:text="'Hour ' + att.hour">H1</span>
+                            </td>
+                            <td>
+                                <span th:class="${att.status == 'present'} ? 'badge badge-present' : 'badge badge-absent'"
+                                      th:text="${#strings.toUpperCase(att.status)}">STATUS</span>
+                            </td>
+                            <td th:text="${att.remarks ?: '-'}">-</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

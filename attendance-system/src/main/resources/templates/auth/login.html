@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Attendance System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="login-page">
+    <div class="login-card">
+
+        <!-- Logo -->
+        <div class="login-logo">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+            </div>
+            <h1>EduTrack</h1>
+            <p>Student Attendance Management System</p>
+        </div>
+
+        <!-- Error alert -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Invalid username or password. Please try again.
+        </div>
+
+        <!-- Success/logout alert -->
+        <div th:if="${param.logout}" class="alert alert-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            You have been logged out successfully.
+        </div>
+
+        <!-- Login form -->
+        <!-- action="/login" is the Spring Security login endpoint (POST) -->
+        <form th:action="@{/login}" method="post">
+
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" id="username" name="username"
+                       class="form-control" placeholder="Enter your username"
+                       required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       class="form-control" placeholder="Enter your password"
+                       required>
+            </div>
+
+            <button type="submit" class="login-btn">Sign In</button>
+        </form>
+
+        <!-- Demo account info -->
+        <div class="demo-accounts">
+            <h4>Demo Accounts</h4>
+            <table style="width:100%; font-size:12px; border-collapse:collapse;">
+                <tr>
+                    <td style="padding:3px 0; color:#6b7280;">Admin</td>
+                    <td><code>admin</code></td>
+                    <td><code>admin123</code></td>
+                </tr>
+                <tr>
+                    <td style="padding:3px 0; color:#6b7280;">Teacher</td>
+                    <td><code>teacher1</code></td>
+                    <td><code>teacher123</code></td>
+                </tr>
+                <tr>
+                    <td style="padding:3px 0; color:#6b7280;">Student</td>
+                    <td><code>student1</code></td>
+                    <td><code>student123</code></td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

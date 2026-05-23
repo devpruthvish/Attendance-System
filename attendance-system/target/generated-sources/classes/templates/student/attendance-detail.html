@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Subject Attendance - EduTrack</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: student-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title">
+                <h2 th:text="${subject.name}">Subject Attendance</h2>
+                <p>Detailed attendance for this subject</p>
+            </div>
+            <div class="topbar-actions">
+                <a href="/student/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="page-content">
+
+            <!-- Summary Card -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-body" style="display:flex; gap:32px; flex-wrap:wrap; align-items:center;">
+                    <div style="text-align:center;">
+                        <div th:style="'font-size:48px; font-weight:800; line-height:1; color:' +
+                            (${percentage >= 75} ? 'var(--success)' : (${percentage >= 50} ? 'var(--warning)' : 'var(--danger)'))">
+                            <span th:text="${percentage}">0</span><span style="font-size:22px;">%</span>
+                        </div>
+                        <div style="font-size:13px; color:var(--text-muted); margin-top:4px;">Attendance</div>
+                    </div>
+
+                    <div style="flex:1; min-width:200px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span style="font-weight:600; font-size:15px;" th:text="${subject.name}">Subject</span>
+                            <span><code th:text="${subject.code ?: ''}">CODE</code></span>
+                        </div>
+                        <div class="progress-bar-bg" style="height:10px;">
+                            <div th:class="${percentage >= 75} ? 'progress-bar-fill good' : (${percentage >= 50} ? 'progress-bar-fill warning' : 'progress-bar-fill danger')"
+                                 th:style="'width:' + ${percentage} + '%'"></div>
+                        </div>
+                        <div style="display:flex; gap:24px; margin-top:14px; font-size:14px;">
+                            <div>
+                                <span style="color:var(--text-muted);">Total: </span>
+                                <strong th:text="${totalClasses}">0</strong>
+                            </div>
+                            <div>
+                                <span style="color:var(--success);">Present: </span>
+                                <strong th:text="${presentCount}">0</strong>
+                            </div>
+                            <div>
+                                <span style="color:var(--danger);">Absent: </span>
+                                <strong th:text="${absentCount}">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance warning -->
+            <div th:if="${percentage < 75 && percentage >= 50}" class="alert alert-warning">
+                ⚠️ Your attendance is below 75%. You need to attend more classes to be eligible for exams.
+            </div>
+            <div th:if="${percentage < 50}" class="alert alert-danger">
+                🚨 Critical: Your attendance is very low (<span th:text="${percentage}">0</span>%). Please contact your teacher immediately.
+            </div>
+            <div th:if="${percentage >= 75}" class="alert alert-success">
+                ✓ Your attendance is in good standing. Keep it up!
+            </div>
+
+            <!-- Detailed Records Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Attendance Records</h3>
+                    <span style="font-size:13px; color:var(--text-muted);"
+                          th:text="${totalClasses + ' sessions'}">0 sessions</span>
+                </div>
+
+                <div th:if="${records.empty}" class="empty-state">
+                    <h3>No attendance records yet</h3>
+                    <p>Your teacher hasn't marked attendance for this subject yet.</p>
+                </div>
+
+                <div th:if="${!records.empty}" class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Hour</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="att, stat : ${records}"
+                            th:style="${att.status == 'absent'} ? 'background:#fff5f5;' : ''">
+                            <td th:text="${stat.count}">1</td>
+                            <td th:text="${att.date}">2024-01-01</td>
+                            <td>
+                                <span style="background:var(--primary-light); color:var(--primary);
+                                      padding:2px 10px; border-radius:100px; font-size:12px; font-weight:600;"
+                                      th:text="'Hour ' + att.hour">H1</span>
+                            </td>
+                            <td>
+                                <span th:class="${att.status == 'present'} ? 'badge badge-present' : 'badge badge-absent'"
+                                      th:text="${att.status == 'present'} ? '✓ Present' : '✗ Absent'">
+                                    Status
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

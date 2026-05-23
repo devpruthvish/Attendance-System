@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Teachers - EduTrack Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar}"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title">
+                <h2>Teachers</h2>
+                <p>Manage all teacher accounts</p>
+            </div>
+            <div class="topbar-actions">
+                <a href="/admin/teachers/add" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Teacher
+                </a>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>All Teachers (<span th:text="${teachers.size()}">0</span>)</h3>
+                </div>
+
+                <div th:if="${teachers.empty}" class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <h3>No teachers yet</h3>
+                    <p>Click "Add Teacher" to get started.</p>
+                </div>
+
+                <div th:if="${!teachers.empty}" class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="teacher, stat : ${teachers}">
+                            <td th:text="${stat.count}">1</td>
+                            <td style="font-weight:500;" th:text="${teacher.name}">Name</td>
+                            <td th:text="${teacher.department != null ? teacher.department : '-'}">Dept</td>
+                            <td th:text="${teacher.email != null ? teacher.email : '-'}">Email</td>
+                            <td>
+                                <code th:text="${teacher.user != null ? teacher.user.username : '-'}">user</code>
+                            </td>
+                            <td>
+                                <a th:href="@{/admin/teachers/edit/{id}(id=${teacher.id})}"
+                                   class="btn btn-warning btn-sm">Edit</a>
+                                <a th:href="@{/admin/teachers/delete/{id}(id=${teacher.id})}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Delete this teacher?')">Delete</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
